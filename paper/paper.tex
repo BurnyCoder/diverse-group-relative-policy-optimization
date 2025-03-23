@@ -1,0 +1,199 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{arxiv}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{doi}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{caption}
+
+% Set page margins
+\usepackage[margin=1in]{geometry}
+
+\title{Diverse Group Relative Policy Optimization (DGRPO): Upweighting Rare, Accurate Solutions through Cosine Similarity for STEM and Art}
+
+\author{
+  Libor Burian\\
+  \texttt{burian.lib@gmail.com}\\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Language models trained with reinforcement learning often converge to common solution patterns, limiting their creative problem-solving capabilities. This paper introduces Diverse Group Relative Policy Optimization (DGRPO), an extension of Group Relative Policy Optimization (GRPO) that specifically addresses this limitation. While GRPO normalizes rewards within groups of responses to promote accuracy, DGRPO incorporates solution diversity into the advantage calculation through two novel approaches: (1) upweighting less likely but correct tokens to incentivize rare solutions, and (2) quantifying solution uniqueness using cosine similarity of neural embeddings. By introducing a configurable diversity weight parameter, DGRPO allows practitioners to balance accuracy with exploration of diverse solution strategies. My approach encourages language models to discover multiple valid approaches to problems, a critical capability for applications in scientific discovery, mathematical problem-solving, creative coding, and art. DGRPO demonstrates how reinforcement learning can be adapted to reward not just correctness but also the novelty and diversity of solutions in generative AI systems.
+\end{abstract}
+
+\section{Background: Group Relative Policy Optimization}
+Group Relative Policy Optimization (GRPO) was introduced as an efficient algorithm for training language models on reasoning tasks, particularly in the DeepSeek-R1 model \citep{shao2024deepseek}. GRPO builds on the Proximal Policy Optimization (PPO) algorithm but eliminates the need for a separate critic model by estimating baselines from group scores.
+
+For each question $q$, GRPO samples a group of outputs $\{o_1, o_2, \ldots, o_G\}$ from the old policy $\pi_{\theta_{old}}$ and optimizes the policy model $\pi_\theta$ by maximizing an objective function.
+
+\begin{figure*}[t]
+\begin{equation*}
+\begin{split}
+J_{GRPO}(\theta) = \mathbb{E}_{[q \sim P(Q), \{o_i\}_{i=1}^G \sim \pi_{\theta_{old}}(O|q)]} \Bigg[ \frac{1}{G} \sum_{i=1}^G \Bigg( 
+\min \Bigg( & \frac{\pi_\theta(o_i|q)}{\pi_{\theta_{old}}(o_i|q)} A_i, \\
+& \text{clip} \Bigg( \frac{\pi_\theta(o_i|q)}{\pi_{\theta_{old}}(o_i|q)}, 1-\epsilon, 1+\epsilon \Bigg) A_i \Bigg) \\
+& - \beta D_{KL} \big( \pi_\theta || \pi_{ref} \big) \Bigg) \Bigg]
+\end{split}
+\end{equation*}
+\captionof{equation}{The GRPO objective function}
+\label{eq:grpo}
+\end{figure*}
+
+where $\epsilon$ and $\beta$ are hyperparameters, and $A_i$ is the advantage, computed using a group of rewards $\{r_1, r_2, \ldots, r_G\}$ corresponding to the outputs within each group:
+
+\begin{equation}
+A_i = \frac{r_i - \text{mean}(\{r_1, r_2, \ldots, r_G\})}{\text{std}(\{r_1, r_2, \ldots, r_G\})}
+\end{equation}
+
+While GRPO has demonstrated impressive performance on reasoning tasks, its objective function focuses solely on accuracy (as measured by rewards), which can lead to homogenized solution strategies over time.
+
+\section{Method 1}
+
+\maketitle
+
+Both GRPO and DGRPO are reinforcement learning techniques for training language models, with DGRPO being an extension of GRPO that promotes diversity in correct solutions.
+
+\subsection{Key Difference}
+
+The core difference is that \textbf{GRPO} optimizes for relative performance within a group of responses, while \textbf{DGRPO} additionally rewards less likely (but correct) responses to encourage diversity in solutions.
+
+\subsection{Mathematical Explanation}
+
+\subsubsection{GRPO}
+
+In standard GRPO, rewards are normalized within a group of responses to the same prompt:
+
+\begin{enumerate}
+  \item For each prompt $x$, generate $k$ responses $y_1, y_2, \ldots, y_k$
+  \item Compute rewards $r_1, r_2, \ldots, r_k$ for each response
+  \item Calculate the normalized advantage for each response:
+\end{enumerate}
+
+$$A_i = r_i - \mu_r$$
+
+Where $\mu_r$ is the mean reward across all responses for that prompt.
+
+\subsubsection{DGRPO}
+
+DGRPO extends this by adding a diversity bonus to correct solutions:
+
+\begin{enumerate}
+  \item Generate $k$ responses and compute base rewards as in GRPO
+  \item For correct solutions, calculate token probabilities $p(y_i)$
+  \item Compute the average probability $\bar{p}$ across all correct solutions
+  \item Calculate a diversity bonus for each correct solution:
+\end{enumerate}
+
+$$\text{diversity\_bonus}_i = \max(0, 1 - \frac{p(y_i)}{\bar{p}})$$
+
+\begin{enumerate}
+  \item[5.] Final reward becomes:
+\end{enumerate}
+
+$$R_i = \begin{cases}
+r_i + \alpha \cdot \text{diversity\_bonus}_i & \text{if solution is correct} \\
+r_i & \text{otherwise}
+\end{cases}$$
+
+Where $\alpha$ is a scaling factor (set to 0.5 in the implementation).
+\subsection{Possible benefits of DGRPO over GRPO}
+
+\begin{enumerate}
+  \item \textbf{Increased Diversity}: DGRPO encourages the model to find multiple correct approaches to the same problem
+  \item \textbf{Better Generalization}: By exploring a wider solution space, the model may generalize better to new problems
+\end{enumerate}
+
+DGRPO effectively combines the group-relative optimization of GRPO with a mechanism to promote diversity in model outputs, creating a more versatile and creative reasoning system.
+
+\section{Method 2}
+
+\subsection{Methodology: Diverse Group Relative Policy Optimization (DGRPO)}
+I propose Diverse Group Relative Policy Optimization (DGRPO), which extends GRPO by incorporating solution diversity into the advantage calculation. My approach quantifies solution rarity using cosine similarity and introduces a configurable parameter to control the trade-off between accuracy and diversity.
+
+\subsubsection{Solution Embedding}
+I convert each solution text $s_i$ to a dense vector embedding $\vec{v_i}$ using a pre-trained neural embedding model:
+
+\begin{equation}
+\vec{v_i} = \text{Embed}(s_i)
+\end{equation}
+
+where $\text{Embed}(\cdot)$ represents a neural embedding function that maps text to a high-dimensional vector space. These embeddings capture the semantic content of solutions, allowing for more meaningful comparisons than surface-level lexical matching. The embedding model projects solutions into a space where semantically similar approaches appear closer together, regardless of specific wording or syntactic variations.
+
+\subsubsection{Rarity Score Calculation}
+For each solution, we compute its average similarity to all other solutions in the group:
+
+\begin{equation}
+\text{sim}(i, j) = \cos(\vec{v_i}, \vec{v_j}) = \frac{\vec{v_i} \cdot \vec{v_j}}{||\vec{v_i}|| \cdot ||\vec{v_j}||}
+\end{equation}
+
+\begin{equation}
+\text{avg\_sim}_i = \frac{1}{G} \sum_{j=1}^{G} \text{sim}(i, j)
+\end{equation}
+
+We then convert this to a rarity score by inverting and normalizing:
+
+\begin{equation}
+\text{rarity}_i = 1 - \frac{\text{avg\_sim}_i}{\max_{k} \text{avg\_sim}_k}
+\end{equation}
+
+This formulation ensures that solutions with lower average similarity (i.e., more unique solutions) receive higher rarity scores. By using neural embeddings instead of lexical features, my approach can identify semantically unique solutions even when they share surface-level similarities with common approaches.
+
+\subsubsection{Diversity-Weighted Advantage Calculation}
+I combine the original reward signal with the rarity score using a diversity weight parameter $\lambda \in [0,1]$:
+
+\begin{equation}
+\text{combined\_score}_i = (1 - \lambda) \times \text{normalized\_reward}_i + \lambda \times \text{rarity}_i
+\end{equation}
+
+where $\text{normalized\_reward}_i$ scales the original rewards to the [0,1] range:
+
+\begin{equation}
+\text{normalized\_reward}_i = \frac{r_i - r_{\min}}{r_{\max} - r_{\min}}
+\end{equation}
+
+where $r_{\min} = \min(\{r_1, r_2, \ldots, r_G\})$ and $r_{\max} = \max(\{r_1, r_2, \ldots, r_G\})$.
+
+I then compute advantages using the standard GRPO formula but with combined scores:
+
+\begin{equation}
+A_i^{DGRPO} = \frac{\text{combined\_score}_i - \text{mean}(\{\text{combined\_score}_1, \ldots, \text{combined\_score}_G\})}{\text{std}(\{\text{combined\_score}_1, \ldots, \text{combined\_score}_G\})}
+\end{equation}
+
+\subsubsection{Objective Function}
+The DGRPO objective function remains structurally similar to GRPO but uses the diversity-weighted advantages
+
+\begin{figure*}[t]
+\begin{equation*}
+\begin{split}
+J_{DGRPO}(\theta) = \mathbb{E}_{[q \sim P(Q), \{o_i\}_{i=1}^G \sim \pi_{\theta_{old}}(O|q)]} \Bigg[ \frac{1}{G} \sum_{i=1}^G \Bigg( 
+\min \Bigg( & \frac{\pi_\theta(o_i|q)}{\pi_{\theta_{old}}(o_i|q)} A_i^{DGRPO}, \\
+& \text{clip} \Bigg( \frac{\pi_\theta(o_i|q)}{\pi_{\theta_{old}}(o_i|q)}, 1-\epsilon, 1+\epsilon \Bigg) A_i^{DGRPO} \Bigg) \\
+& - \beta D_{KL} \big( \pi_\theta || \pi_{ref} \big) \Bigg) \Bigg]
+\end{split}
+\end{equation*}
+\captionof{equation}{The DGRPO objective function}
+\label{eq:dgrpo}
+\end{figure*}
+
+This objective encourages the model to generate not only correct solutions but also diverse approaches to solving problems.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

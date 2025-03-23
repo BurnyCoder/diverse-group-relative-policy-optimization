@@ -1,0 +1,40 @@
+\ProvidesPackage{arxiv}
+
+% use Times
+\usepackage{times}
+
+% line spacing
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{2em}
+
+% prevent widows and orphans
+\clubpenalty = 10000
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+
+% equation numbers
+\makeatletter
+\def\tagform@#1{\maketag@@@{\bfseries(\ignorespaces#1\unskip\@@italiccorr)}}
+\makeatother
+
+% use graphics
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{amsmath}
+
+% table note
+\newcommand{\tablenote}[1]{\par\vskip.5\baselineskip\footnotesize{#1}}
+
+% hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+% references
+\renewcommand{\bibsection}{\section*{References}}
