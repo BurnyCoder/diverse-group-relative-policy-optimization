@@ -26,6 +26,7 @@ The project includes:
 - Check if models save to Google Drive
 - Fix broken plotting
 - Fix broken testing
+- Dedupe and refactor code
 - Benchmark on GSM8K and other datasets and compare original model, model trained using GRPO, and model trained using DGRPO
 - Implement cosine similarity method in code and benchmark it
 - Train bigger models
