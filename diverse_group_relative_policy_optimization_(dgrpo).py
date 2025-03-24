@@ -117,18 +117,18 @@ The below code is a modified and annotated version of [Unsloth's original](https
 We will be relying on [Unsloth](https://github.com/unslothai/unsloth), [vLLM](https://github.com/vllm-project/vllm) and [Transformers Reinforcement Learning (TRL)](https://huggingface.co/docs/trl/en/index) as the core packages for training and inferencing.
 """
 
-#%%capture
-!pip uninstall unsloth -y
-!pip install unsloth --no-binary numpy
-!pip install vllm
-!pip install --upgrade pillow
-# If you are running this notebook locally (not colab), you need to install `diffusers` too
-# !pip install diffusers
+# #%%capture
+# !pip uninstall unsloth -y
+# !pip install unsloth --no-binary numpy
+# !pip install vllm
+# !pip install --upgrade pillow
+# # If you are running this notebook locally (not colab), you need to install `diffusers` too
+# # !pip install diffusers
 
-# Temporarily install a specific TRL nightly version that supports GRPO
-!pip install git+https://github.com/huggingface/trl.git@e95f9fb74a3c3647b86f251b7e230ec51c64b72b
+# # Temporarily install a specific TRL nightly version that supports GRPO
+# !pip install git+https://github.com/huggingface/trl.git@e95f9fb74a3c3647b86f251b7e230ec51c64b72b
 
-!pip install transformers
+# !pip install transformers
 
 """## Unsloth TRL Patch
 
