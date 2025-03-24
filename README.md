@@ -31,3 +31,4 @@ The project includes:
 - Implement cosine similarity method in code and benchmark it
 - Train bigger models
 - Fix broken formatting in paper
+- Add citation information
