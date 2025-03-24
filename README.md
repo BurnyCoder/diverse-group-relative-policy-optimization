@@ -8,7 +8,7 @@ Read `Diverse_Group_Relative_Policy_Optimization_(DGRPO).pdf` paper for more det
 
 Run `Diverse_Group_Relative_Policy_Optimization_(DGRPO).ipynb` locally or in Google Colab.
 
-## Sunnary
+## Summary
 
 The project includes:
 
