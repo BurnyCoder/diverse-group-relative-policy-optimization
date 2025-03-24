@@ -23,6 +23,7 @@ The project includes:
 ## To do
 
 - Double check code for errors
+- Check if models save to Google Drive
 - Fix broken plotting
 - Fix broken testing
 - Benchmark on GSM8K and other datasets and compare original model, model trained using GRPO, and model trained using DGRPO
