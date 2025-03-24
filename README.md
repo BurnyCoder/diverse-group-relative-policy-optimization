@@ -27,3 +27,4 @@ The project includes:
 - Fix broken testing
 - Benchmark on GSM8K and other datasets and compare original model, model trained using GRPO, and model trained using DGRPO
 - Implement cosine similarity method in code and benchmark it
+- Train bigger models
