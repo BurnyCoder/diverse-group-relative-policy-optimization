@@ -22,8 +22,8 @@ The project includes:
 
 ## To do
 
+- Fix saving to Google Drive
 - Double check code for errors
-- Check if models save to Google Drive
 - Fix broken plotting
 - Fix broken testing
 - Dedupe and refactor code
